@@ -19,6 +19,7 @@ const InquiryBox = () => {
   const [isMinimized, setIsMinimized] = useState(false);
   const [isVisible, setIsVisible] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
+  const [hasSubmitted, setHasSubmitted] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     phone: '',
@@ -67,6 +68,7 @@ const InquiryBox = () => {
         description: "Thank you for your inquiry! We will contact you soon.",
       });
 
+      setHasSubmitted(true);
       setFormData({
         name: '',
         phone: '',
@@ -119,85 +121,104 @@ const InquiryBox = () => {
 
         {!isMinimized && (
           <CardContent className="space-y-4">
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="name" className="text-sm font-medium">Name</Label>
-                <Input
-                  id="name"
-                  type="text"
-                  value={formData.name}
-                  onChange={(e) => handleInputChange('name', e.target.value)}
-                  placeholder="Enter your name"
-                  required
-                  className="bg-white/90"
-                />
+            {hasSubmitted ? (
+              <div className="text-center py-6">
+                <div className="mb-4">
+                  <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                    <Send className="w-8 h-8 text-green-600" />
+                  </div>
+                  <h3 className="text-lg font-semibold text-green-800 mb-2">
+                    Inquiry Submitted!
+                  </h3>
+                  <p className="text-sm text-green-700">
+                    Thank you for your inquiry. Our travel experts will contact you soon.
+                  </p>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  You can only submit one inquiry per session. Refresh the page to submit another.
+                </p>
               </div>
+            ) : (
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="name" className="text-sm font-medium">Name</Label>
+                  <Input
+                    id="name"
+                    type="text"
+                    value={formData.name}
+                    onChange={(e) => handleInputChange('name', e.target.value)}
+                    placeholder="Enter your name"
+                    required
+                    className="bg-white/90"
+                  />
+                </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="phone" className="text-sm font-medium">Phone</Label>
-                <Input
-                  id="phone"
-                  type="tel"
-                  value={formData.phone}
-                  onChange={(e) => handleInputChange('phone', e.target.value)}
-                  placeholder="10-digit phone number"
-                  maxLength={10}
-                  required
-                  className="bg-white/90"
-                />
-              </div>
+                <div className="space-y-2">
+                  <Label htmlFor="phone" className="text-sm font-medium">Phone</Label>
+                  <Input
+                    id="phone"
+                    type="tel"
+                    value={formData.phone}
+                    onChange={(e) => handleInputChange('phone', e.target.value)}
+                    placeholder="10-digit phone number"
+                    maxLength={10}
+                    required
+                    className="bg-white/90"
+                  />
+                </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="destination" className="text-sm font-medium">Destination</Label>
-                <Select value={formData.destination} onValueChange={(value) => handleInputChange('destination', value)}>
-                  <SelectTrigger className="bg-white/90">
-                    <SelectValue placeholder="Select destination" />
-                  </SelectTrigger>
-                  <SelectContent className="max-h-40">
-                    {destinations.map((dest) => (
-                      <SelectItem key={dest} value={dest}>
-                        {dest}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
+                <div className="space-y-2">
+                  <Label htmlFor="destination" className="text-sm font-medium">Destination</Label>
+                  <Select value={formData.destination} onValueChange={(value) => handleInputChange('destination', value)}>
+                    <SelectTrigger className="bg-white/90">
+                      <SelectValue placeholder="Select destination" />
+                    </SelectTrigger>
+                    <SelectContent className="max-h-40">
+                      {destinations.map((dest) => (
+                        <SelectItem key={dest} value={dest}>
+                          {dest}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="fromCity" className="text-sm font-medium">From City</Label>
-                <Input
-                  id="fromCity"
-                  type="text"
-                  value={formData.fromCity}
-                  onChange={(e) => handleInputChange('fromCity', e.target.value)}
-                  placeholder="Your city"
-                  required
-                  className="bg-white/90"
-                />
-              </div>
+                <div className="space-y-2">
+                  <Label htmlFor="fromCity" className="text-sm font-medium">From City</Label>
+                  <Input
+                    id="fromCity"
+                    type="text"
+                    value={formData.fromCity}
+                    onChange={(e) => handleInputChange('fromCity', e.target.value)}
+                    placeholder="Your city"
+                    required
+                    className="bg-white/90"
+                  />
+                </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="travellers" className="text-sm font-medium">Number of Travellers</Label>
-                <Input
-                  id="travellers"
-                  type="text"
-                  value={formData.travellers}
-                  onChange={(e) => handleInputChange('travellers', e.target.value)}
-                  placeholder="Number of people"
-                  required
-                  className="bg-white/90"
-                />
-              </div>
+                <div className="space-y-2">
+                  <Label htmlFor="travellers" className="text-sm font-medium">Number of Travellers</Label>
+                  <Input
+                    id="travellers"
+                    type="text"
+                    value={formData.travellers}
+                    onChange={(e) => handleInputChange('travellers', e.target.value)}
+                    placeholder="Number of people"
+                    required
+                    className="bg-white/90"
+                  />
+                </div>
 
-              <Button 
-                type="submit" 
-                disabled={isLoading}
-                className="w-full bg-secondary hover:bg-secondary-hover text-white shadow-glow disabled:opacity-50"
-              >
-                <Send size={16} className="mr-2" />
-                {isLoading ? 'Submitting...' : 'Send Inquiry'}
-              </Button>
-            </form>
+                <Button 
+                  type="submit" 
+                  disabled={isLoading}
+                  className="w-full bg-secondary hover:bg-secondary-hover text-white shadow-glow disabled:opacity-50"
+                >
+                  <Send size={16} className="mr-2" />
+                  {isLoading ? 'Submitting...' : 'Send Inquiry'}
+                </Button>
+              </form>
+            )}
           </CardContent>
         )}
       </Card>
