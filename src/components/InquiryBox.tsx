@@ -5,6 +5,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
 
 const destinations = [
   'Paris, France', 'London, UK', 'New York, USA', 'Tokyo, Japan', 'Dubai, UAE',
@@ -16,6 +18,7 @@ const destinations = [
 const InquiryBox = () => {
   const [isMinimized, setIsMinimized] = useState(false);
   const [isVisible, setIsVisible] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     phone: '',
@@ -23,6 +26,7 @@ const InquiryBox = () => {
     fromCity: '',
     travellers: ''
   });
+  const { toast } = useToast();
 
   const handleInputChange = (field: string, value: string) => {
     if (field === 'phone' || field === 'travellers') {
@@ -39,18 +43,47 @@ const InquiryBox = () => {
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle form submission
-    console.log('Inquiry submitted:', formData);
-    alert('Thank you for your inquiry! We will contact you soon.');
-    setFormData({
-      name: '',
-      phone: '',
-      destination: '',
-      fromCity: '',
-      travellers: ''
-    });
+    setIsLoading(true);
+
+    try {
+      const { error } = await supabase
+        .from('inquiries')
+        .insert({
+          name: formData.name,
+          phone: formData.phone,
+          destination: formData.destination,
+          from_city: formData.fromCity,
+          travellers: parseInt(formData.travellers)
+        });
+
+      if (error) {
+        throw error;
+      }
+
+      toast({
+        title: "Inquiry Submitted",
+        description: "Thank you for your inquiry! We will contact you soon.",
+      });
+
+      setFormData({
+        name: '',
+        phone: '',
+        destination: '',
+        fromCity: '',
+        travellers: ''
+      });
+    } catch (error) {
+      console.error('Error submitting inquiry:', error);
+      toast({
+        title: "Error",
+        description: "Failed to submit inquiry. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   if (!isVisible) return null;
@@ -158,10 +191,11 @@ const InquiryBox = () => {
 
               <Button 
                 type="submit" 
-                className="w-full bg-secondary hover:bg-secondary-hover text-white shadow-glow"
+                disabled={isLoading}
+                className="w-full bg-secondary hover:bg-secondary-hover text-white shadow-glow disabled:opacity-50"
               >
                 <Send size={16} className="mr-2" />
-                Send Inquiry
+                {isLoading ? 'Submitting...' : 'Send Inquiry'}
               </Button>
             </form>
           </CardContent>
