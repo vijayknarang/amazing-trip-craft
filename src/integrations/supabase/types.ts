@@ -16,46 +16,149 @@ export type Database = {
     Tables: {
       inquiries: {
         Row: {
+          assigned_at: string | null
+          assigned_to: string | null
           created_at: string
           destination: string
+          follow_up_notes: string | null
           from_city: string
           id: string
+          last_follow_up: string | null
           name: string
           phone: string
+          status: Database["public"]["Enums"]["inquiry_status"]
           travellers: number
           updated_at: string
         }
         Insert: {
+          assigned_at?: string | null
+          assigned_to?: string | null
           created_at?: string
           destination: string
+          follow_up_notes?: string | null
           from_city: string
           id?: string
+          last_follow_up?: string | null
           name: string
           phone: string
+          status?: Database["public"]["Enums"]["inquiry_status"]
           travellers: number
           updated_at?: string
         }
         Update: {
+          assigned_at?: string | null
+          assigned_to?: string | null
           created_at?: string
           destination?: string
+          follow_up_notes?: string | null
           from_city?: string
           id?: string
+          last_follow_up?: string | null
           name?: string
           phone?: string
+          status?: Database["public"]["Enums"]["inquiry_status"]
           travellers?: number
           updated_at?: string
         }
+        Relationships: [
+          {
+            foreignKeyName: "inquiries_assigned_to_fkey"
+            columns: ["assigned_to"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          email: string
+          full_name: string
+          id: string
+          is_active: boolean
+          role: Database["public"]["Enums"]["user_role"]
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          full_name: string
+          id: string
+          is_active?: boolean
+          role?: Database["public"]["Enums"]["user_role"]
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          full_name?: string
+          id?: string
+          is_active?: boolean
+          role?: Database["public"]["Enums"]["user_role"]
+          updated_at?: string
+        }
         Relationships: []
+      }
+      user_roles: {
+        Row: {
+          assigned_by: string | null
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["user_role"]
+          user_id: string
+        }
+        Insert: {
+          assigned_by?: string | null
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["user_role"]
+          user_id: string
+        }
+        Update: {
+          assigned_by?: string | null
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["user_role"]
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_roles_assigned_by_fkey"
+            columns: ["assigned_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_roles_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_user_role: {
+        Args: { user_id: string }
+        Returns: Database["public"]["Enums"]["user_role"]
+      }
+      has_role: {
+        Args: {
+          user_id: string
+          check_role: Database["public"]["Enums"]["user_role"]
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      inquiry_status: "fresh" | "assigned" | "follow_up" | "hot" | "cold"
+      user_role: "admin" | "travel_advisor" | "traveler"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -182,6 +285,9 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      inquiry_status: ["fresh", "assigned", "follow_up", "hot", "cold"],
+      user_role: ["admin", "travel_advisor", "traveler"],
+    },
   },
 } as const
