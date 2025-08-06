@@ -7,7 +7,11 @@ import { User, Session } from "@supabase/supabase-js";
 import { AdminHeader } from "@/components/admin/AdminHeader";
 import { InquiriesList } from "@/components/admin/InquiriesList";
 import { UserManagement } from "@/components/admin/UserManagement";
+import { InquiryAssignment } from "@/components/admin/InquiryAssignment";
+import { FollowUpDashboard } from "@/components/admin/FollowUpDashboard";
+import { AdminSettings } from "@/components/admin/AdminSettings";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useFollowUpNotifications } from "@/hooks/useFollowUpNotifications";
 
 const Admin = () => {
   const [user, setUser] = useState<User | null>(null);
@@ -16,6 +20,9 @@ const Admin = () => {
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   const { toast } = useToast();
+
+  // Initialize follow-up notifications for travel advisors
+  useFollowUpNotifications({ user, userRole });
 
   useEffect(() => {
     // Set up auth state listener
@@ -116,20 +123,39 @@ const Admin = () => {
       <div className="container mx-auto p-6">
         <Tabs defaultValue="inquiries" className="w-full">
           <TabsList>
-            <TabsTrigger value="inquiries">Inquiries</TabsTrigger>
+            <TabsTrigger value="inquiries">All Inquiries</TabsTrigger>
+            <TabsTrigger value="followup">Follow-ups</TabsTrigger>
             {userRole === 'admin' && (
-              <TabsTrigger value="users">User Management</TabsTrigger>
+              <>
+                <TabsTrigger value="assignment">Assignment</TabsTrigger>
+                <TabsTrigger value="users">User Management</TabsTrigger>
+                <TabsTrigger value="settings">Settings</TabsTrigger>
+              </>
             )}
           </TabsList>
           
           <TabsContent value="inquiries">
-            <InquiriesList userRole={userRole} />
+            <InquiriesList userRole={userRole} currentUser={user} />
+          </TabsContent>
+          
+          <TabsContent value="followup">
+            <FollowUpDashboard userRole={userRole} currentUser={user} />
           </TabsContent>
           
           {userRole === 'admin' && (
-            <TabsContent value="users">
-              <UserManagement />
-            </TabsContent>
+            <>
+              <TabsContent value="assignment">
+                <InquiryAssignment userRole={userRole} currentUser={user} />
+              </TabsContent>
+              
+              <TabsContent value="users">
+                <UserManagement />
+              </TabsContent>
+              
+              <TabsContent value="settings">
+                <AdminSettings userRole={userRole} />
+              </TabsContent>
+            </>
           )}
         </Tabs>
       </div>

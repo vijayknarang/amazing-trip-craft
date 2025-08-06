@@ -14,6 +14,30 @@ export type Database = {
   }
   public: {
     Tables: {
+      admin_settings: {
+        Row: {
+          created_at: string
+          id: string
+          setting_key: string
+          setting_value: Json
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          setting_key: string
+          setting_value: Json
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          setting_key?: string
+          setting_value?: Json
+          updated_at?: string
+        }
+        Relationships: []
+      }
       inquiries: {
         Row: {
           assigned_at: string | null
@@ -25,6 +49,7 @@ export type Database = {
           id: string
           last_follow_up: string | null
           name: string
+          next_follow_up_date: string | null
           phone: string
           status: Database["public"]["Enums"]["inquiry_status"]
           travellers: number
@@ -40,6 +65,7 @@ export type Database = {
           id?: string
           last_follow_up?: string | null
           name: string
+          next_follow_up_date?: string | null
           phone: string
           status?: Database["public"]["Enums"]["inquiry_status"]
           travellers: number
@@ -55,6 +81,7 @@ export type Database = {
           id?: string
           last_follow_up?: string | null
           name?: string
+          next_follow_up_date?: string | null
           phone?: string
           status?: Database["public"]["Enums"]["inquiry_status"]
           travellers?: number
@@ -66,6 +93,85 @@ export type Database = {
             columns: ["assigned_to"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      inquiry_activity_log: {
+        Row: {
+          activity_type: string
+          created_at: string
+          details: Json | null
+          id: string
+          inquiry_id: string
+          new_value: string | null
+          old_value: string | null
+          user_id: string
+        }
+        Insert: {
+          activity_type: string
+          created_at?: string
+          details?: Json | null
+          id?: string
+          inquiry_id: string
+          new_value?: string | null
+          old_value?: string | null
+          user_id: string
+        }
+        Update: {
+          activity_type?: string
+          created_at?: string
+          details?: Json | null
+          id?: string
+          inquiry_id?: string
+          new_value?: string | null
+          old_value?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "inquiry_activity_log_inquiry_id_fkey"
+            columns: ["inquiry_id"]
+            isOneToOne: false
+            referencedRelation: "inquiries"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      inquiry_comments: {
+        Row: {
+          comment: string
+          created_at: string
+          id: string
+          inquiry_id: string
+          next_follow_up_date: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          comment: string
+          created_at?: string
+          id?: string
+          inquiry_id: string
+          next_follow_up_date?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          comment?: string
+          created_at?: string
+          id?: string
+          inquiry_id?: string
+          next_follow_up_date?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "inquiry_comments_inquiry_id_fkey"
+            columns: ["inquiry_id"]
+            isOneToOne: false
+            referencedRelation: "inquiries"
             referencedColumns: ["id"]
           },
         ]
@@ -155,9 +261,27 @@ export type Database = {
         }
         Returns: boolean
       }
+      log_inquiry_activity: {
+        Args: {
+          p_inquiry_id: string
+          p_user_id: string
+          p_activity_type: string
+          p_details?: Json
+          p_old_value?: string
+          p_new_value?: string
+        }
+        Returns: string
+      }
     }
     Enums: {
-      inquiry_status: "fresh" | "assigned" | "follow_up" | "hot" | "cold"
+      inquiry_status:
+        | "fresh"
+        | "assigned"
+        | "follow_up"
+        | "hot"
+        | "cold"
+        | "pending_assignment"
+        | "needs_follow_up"
       user_role: "admin" | "travel_advisor" | "traveler"
     }
     CompositeTypes: {
@@ -286,7 +410,15 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      inquiry_status: ["fresh", "assigned", "follow_up", "hot", "cold"],
+      inquiry_status: [
+        "fresh",
+        "assigned",
+        "follow_up",
+        "hot",
+        "cold",
+        "pending_assignment",
+        "needs_follow_up",
+      ],
       user_role: ["admin", "travel_advisor", "traveler"],
     },
   },

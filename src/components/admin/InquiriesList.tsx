@@ -9,6 +9,9 @@ import { useToast } from "@/hooks/use-toast";
 import { Eye, Calendar, User, MapPin, Phone } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
+import { InquiryComments } from "./InquiryComments";
+import { ActivityLog } from "./ActivityLog";
+import { User as SupabaseUser } from "@supabase/supabase-js";
 
 interface Inquiry {
   id: string;
@@ -30,9 +33,10 @@ interface Inquiry {
 
 interface InquiriesListProps {
   userRole: string;
+  currentUser?: SupabaseUser;
 }
 
-export const InquiriesList = ({ userRole }: InquiriesListProps) => {
+export const InquiriesList = ({ userRole, currentUser }: InquiriesListProps) => {
   const [inquiries, setInquiries] = useState<Inquiry[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedInquiry, setSelectedInquiry] = useState<Inquiry | null>(null);
@@ -163,19 +167,33 @@ export const InquiriesList = ({ userRole }: InquiriesListProps) => {
                         View Details
                       </Button>
                     </DialogTrigger>
-                    <DialogContent className="max-w-2xl">
+                    <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
                       <DialogHeader>
                         <DialogTitle>Inquiry Details</DialogTitle>
                         <DialogDescription>
-                          Manage inquiry status and add follow-up notes
+                          Manage inquiry status, comments, and view activity
                         </DialogDescription>
                       </DialogHeader>
-                      {selectedInquiry && (
-                        <InquiryDetailsForm
-                          inquiry={selectedInquiry}
-                          onUpdate={updateInquiryStatus}
-                          userRole={userRole}
-                        />
+                      {selectedInquiry && currentUser && (
+                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                          <div>
+                            <InquiryDetailsForm
+                              inquiry={selectedInquiry}
+                              onUpdate={updateInquiryStatus}
+                              userRole={userRole}
+                            />
+                          </div>
+                          <div>
+                            <InquiryComments
+                              inquiryId={selectedInquiry.id}
+                              currentUser={currentUser}
+                              onCommentAdded={fetchInquiries}
+                            />
+                          </div>
+                          <div>
+                            <ActivityLog inquiryId={selectedInquiry.id} />
+                          </div>
+                        </div>
                       )}
                     </DialogContent>
                   </Dialog>
