@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { FacebookConfiguration } from "./FacebookConfiguration";
 
 interface AdminSettingsProps {
   userRole: string;
@@ -136,6 +137,8 @@ export const AdminSettings = ({ userRole }: AdminSettingsProps) => {
           </Button>
         </CardContent>
       </Card>
+
+      <FacebookConfiguration userRole={userRole} />
     </div>
   );
 };

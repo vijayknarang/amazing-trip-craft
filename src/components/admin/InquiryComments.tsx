@@ -72,10 +72,10 @@ export const InquiryComments = ({ inquiryId, currentUser, onCommentAdded }: Inqu
   };
 
   const addComment = async () => {
-    if (!newComment.trim()) {
+    if (!newComment.trim() || !nextFollowUpDate) {
       toast({
         title: "Error",
-        description: "Please enter a comment",
+        description: "Both comment and next follow-up date are required",
         variant: "destructive",
       });
       return;
@@ -90,23 +90,21 @@ export const InquiryComments = ({ inquiryId, currentUser, onCommentAdded }: Inqu
           inquiry_id: inquiryId,
           user_id: currentUser.id,
           comment: newComment,
-          next_follow_up_date: nextFollowUpDate || null
+          next_follow_up_date: nextFollowUpDate
         });
 
       if (commentError) throw commentError;
 
-      // Update inquiry with next follow up date if provided
-      if (nextFollowUpDate) {
-        const { error: updateError } = await supabase
-          .from('inquiries')
-          .update({
-            next_follow_up_date: nextFollowUpDate,
-            status: 'follow_up'
-          })
-          .eq('id', inquiryId);
+      // Update inquiry with next follow up date
+      const { error: updateError } = await supabase
+        .from('inquiries')
+        .update({
+          next_follow_up_date: nextFollowUpDate,
+          status: 'follow_up'
+        })
+        .eq('id', inquiryId);
 
-        if (updateError) throw updateError;
-      }
+      if (updateError) throw updateError;
 
       // Log activity
       await supabase.rpc('log_inquiry_activity', {
@@ -115,7 +113,7 @@ export const InquiryComments = ({ inquiryId, currentUser, onCommentAdded }: Inqu
         p_activity_type: 'comment_added',
         p_details: { 
           comment: newComment,
-          next_follow_up_date: nextFollowUpDate || null 
+          next_follow_up_date: nextFollowUpDate
         }
       });
 
@@ -163,7 +161,7 @@ export const InquiryComments = ({ inquiryId, currentUser, onCommentAdded }: Inqu
           </div>
           
           <div>
-            <Label htmlFor="followUpDate">Next Follow-up Date (Optional)</Label>
+            <Label htmlFor="followUpDate">Next Follow-up Date *</Label>
             <Input
               id="followUpDate"
               type="datetime-local"
@@ -172,7 +170,7 @@ export const InquiryComments = ({ inquiryId, currentUser, onCommentAdded }: Inqu
             />
           </div>
           
-          <Button onClick={addComment} disabled={loading}>
+          <Button onClick={addComment} disabled={loading || !newComment.trim() || !nextFollowUpDate}>
             {loading ? "Adding..." : "Add Comment"}
           </Button>
         </div>

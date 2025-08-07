@@ -11,6 +11,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Label } from "@/components/ui/label";
 import { InquiryComments } from "./InquiryComments";
 import { ActivityLog } from "./ActivityLog";
+import { StatusTimingDisplay } from "./StatusTimingDisplay";
 import { User as SupabaseUser } from "@supabase/supabase-js";
 
 interface Inquiry {
@@ -118,6 +119,10 @@ export const InquiriesList = ({ userRole, currentUser }: InquiriesListProps) => 
         return 'bg-red-100 text-red-800';
       case 'cold':
         return 'bg-gray-100 text-gray-800';
+      case 'requirement':
+        return 'bg-orange-100 text-orange-800';
+      case 'itinerary':
+        return 'bg-green-100 text-green-800';
       default:
         return 'bg-gray-100 text-gray-800';
     }
@@ -146,6 +151,8 @@ export const InquiriesList = ({ userRole, currentUser }: InquiriesListProps) => 
             <SelectItem value="follow_up">Follow Up</SelectItem>
             <SelectItem value="hot">Hot</SelectItem>
             <SelectItem value="cold">Cold</SelectItem>
+            <SelectItem value="requirement">Requirement</SelectItem>
+            <SelectItem value="itinerary">Itinerary</SelectItem>
           </SelectContent>
         </Select>
       </div>
@@ -175,7 +182,7 @@ export const InquiriesList = ({ userRole, currentUser }: InquiriesListProps) => 
                         </DialogDescription>
                       </DialogHeader>
                       {selectedInquiry && currentUser && (
-                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 gap-6">
                           <div>
                             <InquiryDetailsForm
                               inquiry={selectedInquiry}
@@ -193,6 +200,11 @@ export const InquiriesList = ({ userRole, currentUser }: InquiriesListProps) => 
                           <div>
                             <ActivityLog inquiryId={selectedInquiry.id} />
                           </div>
+                          {userRole === 'admin' && (
+                            <div>
+                              <StatusTimingDisplay inquiryId={selectedInquiry.id} />
+                            </div>
+                          )}
                         </div>
                       )}
                     </DialogContent>
@@ -291,6 +303,8 @@ const InquiryDetailsForm = ({ inquiry, onUpdate, userRole }: InquiryDetailsFormP
             <SelectItem value="follow_up">Follow Up</SelectItem>
             <SelectItem value="hot">Hot</SelectItem>
             <SelectItem value="cold">Cold</SelectItem>
+            <SelectItem value="requirement">Requirement</SelectItem>
+            <SelectItem value="itinerary">Itinerary</SelectItem>
           </SelectContent>
         </Select>
       </div>
