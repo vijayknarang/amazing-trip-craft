@@ -84,6 +84,13 @@ const Header = () => {
               >
                 Contact Us
               </Link>
+              <Link 
+                to="/auth" 
+                className="text-foreground hover:text-primary transition-colors"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Admin Login
+              </Link>
               
               {/* Mobile Social Media */}
               <div className="flex items-center space-x-4 pt-4 border-t border-border">
